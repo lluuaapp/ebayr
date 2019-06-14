@@ -13,6 +13,7 @@ module Ebayr #:nodoc:
       @uri = options.delete(:uri) || self.uri
       @uri = URI.parse(@uri) unless @uri.is_a? URI
       @auth_token = (options.delete(:auth_token) || self.auth_token).to_s
+      @oauth_token = (options.delete(:oauth_token) || self.oauth_token).to_s
       @site_id = (options.delete(:site_id) || self.site_id).to_s
       @compatability_level = (options.delete(:compatability_level) || self.compatability_level).to_s
       @http_timeout = (options.delete(:http_timeout) || 60).to_i
@@ -38,8 +39,9 @@ module Ebayr #:nodoc:
         'X-EBAY-API-CERT-NAME' => cert_id.to_s,
         'X-EBAY-API-CALL-NAME' => @command.to_s,
         'X-EBAY-API-SITEID' => @site_id.to_s,
+        'X-EBAY-API-IAF-TOKEN' => @oauth_token,
         'Content-Type' => 'text/xml'
-      }
+      }.reject{ |k, v| v.blank? }
     end
 
     # Gets the body of this request (which is XML)
@@ -55,7 +57,7 @@ module Ebayr #:nodoc:
 
     # Returns eBay requester credential XML if @auth_token is present
     def requester_credentials_xml
-      return "" unless @auth_token && !@auth_token.empty?
+      return "" unless @oauth_token.empty? || @auth_token && !@auth_token.empty?
 
       <<-XML
       <RequesterCredentials>

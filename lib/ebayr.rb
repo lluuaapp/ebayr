@@ -22,6 +22,7 @@ module Ebayr
   mattr_accessor :cert_id
   mattr_accessor :ru_name
   mattr_accessor :auth_token
+  mattr_accessor :oauth_token
 
   # Determines whether to use the eBay sandbox or the real site.
   mattr_accessor :sandbox
