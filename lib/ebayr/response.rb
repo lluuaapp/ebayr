@@ -1,4 +1,5 @@
-# -*- encoding : utf-8 -*-
+# frozen_string_literal: true
+
 module Ebayr #:nodoc:
   # A response to an Ebayr::Request.
   class Response < Record

@@ -1,4 +1,5 @@
-# -*- encoding : utf-8 -*-
+# frozen_string_literal: true
+
 require 'logger'
 require 'net/https'
 require 'active_support/core_ext/module/attribute_accessors'
@@ -6,10 +7,10 @@ require 'active_support/core_ext/hash/conversions'
 
 # A library to assist in using the eBay Trading API.
 module Ebayr
-  autoload :Record,   File.expand_path('../ebayr/record', __FILE__)
-  autoload :Request,  File.expand_path('../ebayr/request',  __FILE__)
-  autoload :Response, File.expand_path('../ebayr/response', __FILE__)
-  autoload :User,     File.expand_path('../ebayr/user',     __FILE__)
+  autoload :Record,   File.expand_path('ebayr/record', __dir__)
+  autoload :Request,  File.expand_path('ebayr/request',  __dir__)
+  autoload :Response, File.expand_path('ebayr/response', __dir__)
+  autoload :User,     File.expand_path('ebayr/user',     __dir__)
 
   # To make a call, you need to have a registered user and app. Then you must
   # fill in the <code>dev_id</code>, <code>app_id</code>, <code>cert_id</code>
@@ -56,11 +57,11 @@ module Ebayr
   # Callbacks which are invoked at various points throughout a request.
   mattr_accessor :callbacks
   self.callbacks = {
-    :before_request   => [],
-    :after_request    => [],
-    :before_response  => [],
-    :after_response   => [],
-    :on_error         => []
+    before_request: [],
+    after_request: [],
+    before_response: [],
+    after_response: [],
+    on_error: []
   }
 
   # The eBay Site to use for calls. The full list of available sites can be
@@ -74,8 +75,8 @@ module Ebayr
   self.compatability_level = 837
 
   mattr_accessor :logger
-  self.logger = Logger.new(STDOUT)
-  self.logger.level = Logger::INFO
+  self.logger = Logger.new($stdout)
+  logger.level = Logger::INFO
 
   mattr_accessor :debug
   self.debug = false
@@ -85,13 +86,13 @@ module Ebayr
   #
   #     Ebayr.uri_prefix("blah")  # => https://blah.ebay.com/ws
   #     Ebayr.uri_prefix          # => https://api.ebay.com/ws
-  def uri_prefix(service = "api")
-    "https://#{service}#{sandbox ? ".sandbox" : ""}.ebay.com/ws"
+  def uri_prefix(service = 'api')
+    "https://#{service}#{sandbox ? '.sandbox' : ''}.ebay.com/ws"
   end
 
   # Gets the URI used for API calls (as a URI object)
   def uri(*args)
-    URI::parse("#{uri_prefix(*args)}/api.dll")
+    URI.parse("#{uri_prefix(*args)}/api.dll")
   end
 
   # Gets the URI for eBay authorization/login. The session_id should be obtained
@@ -99,8 +100,8 @@ module Ebayr
   # ru_params can contain anything (they will be passed back to your app in the
   # redirect from eBay upon successful login and authorization).
   def authorization_uri(session_id, ru_params = {})
-    ruparams = CGI::escape(ru_params.map { |k, v| "#{k}=#{v}" }.join("&"))
-    URI::parse("#{uri_prefix("signin")}/eBayISAPI.dll?SignIn&RuName=#{ru_name}&SessId=#{session_id}&ruparams=#{ruparams}")
+    ruparams = CGI.escape(ru_params.map { |k, v| "#{k}=#{v}" }.join('&'))
+    URI.parse("#{uri_prefix('signin')}/eBayISAPI.dll?SignIn&RuName=#{ru_name}&SessId=#{session_id}&ruparams=#{ruparams}")
   end
 
   # Perform an eBay call (symbol or string). You can pass in these arguments:
@@ -133,7 +134,6 @@ module Ebayr
     Request.new(command, arguments).send
   end
 
-
   def self.included(mod)
     mod.extend(self)
   end
@@ -142,7 +142,6 @@ module Ebayr
 end
 
 # Override defaults with values from a config file, if there is one.
-%W(/etc/ebayr.conf /usr/local/etc/ebayr.conf ~/.ebayr.conf ./.ebayr.conf).each do |path|
+%w[/etc/ebayr.conf /usr/local/etc/ebayr.conf ~/.ebayr.conf ./.ebayr.conf].each do |path|
   load path if File.exist?(path = File.expand_path(path))
 end
-
