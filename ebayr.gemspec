@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 lib = File.expand_path('lib', __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
@@ -18,10 +20,12 @@ Gem::Specification.new do |gem|
   gem.test_files    = gem.files.grep(%r{^test/})
   gem.name          = 'ebayr'
   gem.require_paths = ['lib']
-  gem.version       = '0.2.0'
-  gem.date          = '2021-09-18'
-  gem.add_dependency 'activesupport', '~> 4.2.11'
-  gem.add_dependency 'nokogiri', '~> 1.6'
+  gem.version       = '0.3.0'
+  gem.date          = '2021-09-19'
+
+  gem.required_ruby_version = '>= 2.4'
+  gem.add_dependency 'activesupport', '>= 4.0'
+  gem.add_dependency 'nokogiri', '>= 1.6'
   gem.add_development_dependency 'fakeweb'
-  gem.add_development_dependency 'rake', '~> 11'
+  gem.add_development_dependency 'rake', '>= 11'
 end
