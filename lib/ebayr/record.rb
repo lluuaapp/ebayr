@@ -32,19 +32,17 @@ module Ebayr
     end
 
     class << self
-      protected
+      def convert_key(key)
+        key.to_s.underscore.gsub(/e_bay/, 'ebay').to_sym
+      end
 
-        def convert_key(key)
-          key.to_s.underscore.gsub(/e_bay/, 'ebay').to_sym
+      def convert_value(arg)
+        case arg
+        when Hash then Record.new(arg)
+        when Array then arg.map { |a| convert_value(a) }
+        else arg
         end
-
-        def convert_value(arg)
-          case arg
-          when Hash then Record.new(arg)
-          when Array then arg.map { |a| convert_value(a) }
-          else arg
-          end
-        end
+      end
     end
 
     protected
