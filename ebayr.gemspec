@@ -14,18 +14,26 @@ Gem::Specification.new do |gem|
   DESCRIPTION
   gem.homepage      = 'http://github.com/bjjb/ebayr'
   gem.license       = 'MIT'
-
-  gem.files         = `git ls-files`.split($\)
-  gem.executables   = gem.files.grep(%r{^bin/}).map { |f| File.basename(f) }
-  gem.test_files    = gem.files.grep(%r{^test/})
+  gem.files         = [
+    "Gemfile",
+    "Guardfile",
+    "LICENSE",
+    "README.md",
+    "Rakefile",
+    "lib/ebayr.rb",
+    "lib/ebayr/record.rb",
+    "lib/ebayr/request.rb",
+    "lib/ebayr/response.rb",
+    "lib/ebayr/test_helper.rb",
+    "lib/ebayr/user.rb"
+  ]
+  gem.executables   = []
   gem.name          = 'ebayr'
   gem.require_paths = ['lib']
-  gem.version       = '0.3.0'
-  gem.date          = '2021-09-19'
+  gem.version       = '0.3.1'
 
-  gem.required_ruby_version = '>= 2.4'
+  gem.required_ruby_version = '>= 2.7'
   gem.add_dependency 'activesupport', '>= 4.0'
   gem.add_dependency 'nokogiri', '>= 1.6'
-  gem.add_development_dependency 'fakeweb'
   gem.add_development_dependency 'rake', '>= 11'
 end
