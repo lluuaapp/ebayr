@@ -20,6 +20,7 @@ Gem::Specification.new do |gem|
     "LICENSE",
     "README.md",
     "Rakefile",
+    "ebayr.gemspec",
     "lib/ebayr.rb",
     "lib/ebayr/record.rb",
     "lib/ebayr/request.rb",
