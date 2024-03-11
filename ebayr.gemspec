@@ -31,10 +31,11 @@ Gem::Specification.new do |gem|
   gem.executables   = []
   gem.name          = 'ebayr'
   gem.require_paths = ['lib']
-  gem.version       = '0.3.2'
+  gem.version       = '0.4.0'
 
   gem.required_ruby_version = '>= 3.1'
-  gem.add_dependency 'activesupport', '>= 4.0'
-  gem.add_dependency 'nokogiri', '>= 1.6'
-  gem.add_development_dependency 'rake', '>= 11'
+  gem.add_dependency 'activesupport', '>= 4', "< 10"
+  gem.add_dependency 'libxml-ruby', '>= 4', "< 6"
+  gem.add_development_dependency 'rake', '>= 11', "< 15"
+  gem.metadata['rubygems_mfa_required'] = 'true'
 end

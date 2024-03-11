@@ -1,4 +1,3 @@
-# -*- encoding : utf-8 -*-
 require 'test_helper'
 require 'ostruct'
 require 'ebayr/response'
@@ -6,24 +5,27 @@ describe Ebayr::Response do
   it "builds objects from XML" do
     xml = "<GetSomethingResponse><Foo>Bar</Foo></GetSomethingResponse>"
     response = Ebayr::Response.new(
-      OpenStruct.new(:command => 'GetSomething'),
-      OpenStruct.new(:body => xml))
-    response['Foo'].must_equal 'Bar'
-    response.foo.must_equal 'Bar'
+      OpenStruct.new(command: 'GetSomething'),
+      OpenStruct.new(body: xml)
+    )
+    _(response['Foo']).must_equal 'Bar'
+    _(response.foo).must_equal 'Bar'
   end
   it "handes responses" do
     xml = "<GeteBayResponse><eBayFoo>Bar</eBayFoo></GeteBayResponse>"
     response = Ebayr::Response.new(
-      OpenStruct.new(:command => 'GeteBay'),
-      OpenStruct.new(:body => xml))
-    response.ebay_foo.must_equal 'Bar'
+      OpenStruct.new(command: 'GeteBay'),
+      OpenStruct.new(body: xml)
+    )
+    _(response.ebay_foo).must_equal 'Bar'
   end
   it "handles responses with many html entities" do
     xml = "<GeteBayResponse><eBayFoo>Bar</eBayFoo><Description>#{'<p class="p1"><span class="s1"><br/></span></p>' * 5000}</Description></GeteBayResponse>"
     response = Ebayr::Response.new(
-        OpenStruct.new(:command => 'GeteBay'),
-        OpenStruct.new(:body => xml))
-    response.ebay_foo.must_equal 'Bar'
+      OpenStruct.new(command: 'GeteBay'),
+      OpenStruct.new(body: xml)
+    )
+    _(response.ebay_foo).must_equal 'Bar'
   end
   def test_response_nesting
     xml = <<-XML
@@ -42,12 +44,12 @@ describe Ebayr::Response do
       </GetOrdersResponse>
     XML
     response = Ebayr::Response.new(
-      OpenStruct.new(:command => 'GetOrders'),
-      OpenStruct.new(:body => xml)
+      OpenStruct.new(command: 'GetOrders'),
+      OpenStruct.new(body: xml)
     )
     assert_kind_of Hash, response.orders_array
-    response.orders_array.order[0].order_id.must_equal "1"
-    response.orders_array.order[1].order_id.must_equal "2"
-    response.orders_array.order[2].order_id.must_equal "3"
+    _(response.orders_array.order[0].order_id).must_equal 1
+    _(response.orders_array.order[1].order_id).must_equal 2
+    _(response.orders_array.order[2].order_id).must_equal 3
   end
 end

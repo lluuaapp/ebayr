@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Ebayr #:nodoc:
+module Ebayr # :nodoc:
   # Encapsulates a request which is sent to the eBay Trading API.
   class Request
     include Ebayr
@@ -42,7 +42,7 @@ module Ebayr #:nodoc:
         'X-EBAY-API-SITEID' => @site_id.to_s,
         'X-EBAY-API-IAF-TOKEN' => @oauth_token,
         'Content-Type' => 'text/xml'
-      }.reject { |_k, v| v.blank? }
+      }.reject { |_k, v| v.nil? || v.empty? }
     end
 
     # Gets the body of this request (which is XML)
@@ -59,6 +59,7 @@ module Ebayr #:nodoc:
     # Returns eBay requester credential XML unless @oauth_token is present
     def requester_credentials_xml
       return '' if @oauth_token&.length&.positive?
+      return '' unless @auth_token&.length&.positive?
 
       <<-XML
       <RequesterCredentials>
@@ -112,10 +113,23 @@ module Ebayr #:nodoc:
       hash.map do |k, v|
         if v.is_a?(Hash) && v.key?(:value) && v.key?(:attr)
           serialize_hash_with_attr(k, v)
+        elsif v.is_a?(Array)
+          serialize_array(k, v)
         else
           "<#{k}>#{xml(v)}</#{k}>"
         end
       end.join
+    end
+
+    # Converts an array to multiple xml nodes
+    # {:foo=>["Bar", "baz"]}
+    # gives <foo>Bar</foo><foo>baz</foo>
+    def self.serialize_array(key, array)
+      result = ""
+      array.each do |value|
+        result += "<#{key}>#{xml(value)}</#{key}>"
+      end
+      result
     end
 
     # Converts a hash with attributes to a tag
@@ -145,13 +159,13 @@ module Ebayr #:nodoc:
 
     # Gets a HTTP connection for this request. If you pass in a block, it will
     # be run on that HTTP connection.
-    def http(&block)
+    def http(&)
       http = Net::HTTP.new(@uri.host, @uri.port)
       if @uri.port == 443
         http.use_ssl = true
         http.verify_mode = OpenSSL::SSL::VERIFY_NONE
       end
-      return http.start(&block) if block_given?
+      return http.start(&) if block_given?
 
       http
     end

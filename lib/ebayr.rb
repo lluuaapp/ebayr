@@ -2,6 +2,8 @@
 
 require 'logger'
 require 'net/https'
+require 'time'
+require 'libxml'
 require 'active_support/core_ext/module/attribute_accessors'
 require 'active_support/core_ext/hash/conversions'
 
@@ -72,7 +74,7 @@ module Ebayr
   # eBay Trading API version to use. For more details, see
   # http://developer.ebay.com/devzone/xml/docs/HowTo/eBayWS/eBaySchemaVersioning.html
   mattr_accessor :compatability_level
-  self.compatability_level = 837
+  self.compatability_level = 1325
 
   mattr_accessor :logger
   self.logger = Logger.new($stdout)
