@@ -4,8 +4,6 @@ require 'logger'
 require 'net/https'
 require 'time'
 require 'libxml'
-require 'active_support/core_ext/module/attribute_accessors'
-require 'active_support/core_ext/hash/conversions'
 
 # A library to assist in using the eBay Trading API.
 module Ebayr
@@ -20,20 +18,20 @@ module Ebayr
   # though you may use any user's token here.
   # See http://developer.ebay.com/DevZone/XML/docs/HowTo/index.html for more
   # details.
-  mattr_accessor :dev_id
-  mattr_accessor :app_id
-  mattr_accessor :cert_id
-  mattr_accessor :ru_name
-  mattr_accessor :auth_token
-  mattr_accessor :oauth_token
+  attr_accessor :dev_id, :app_id, :cert_id, :ru_name, :auth_token, :oauth_token
 
   # Determines whether to use the eBay sandbox or the real site.
-  mattr_accessor :sandbox
-  self.sandbox = true
+  attr_writer :sandbox
+
+  def sandbox
+    self.sandbox = true if @sandbox.nil?
+
+    return @sandbox
+  end
 
   # Set to true to generate fancier objects for responses (will decrease
   # performance).
-  mattr_accessor :normalize_responses
+  attr_accessor :normalize_responses
 
   def self.normalize_responses?
     !!normalize_responses
@@ -46,42 +44,70 @@ module Ebayr
   # This URL is used to redirect the user back after a successful registration.
   # For more details, see here:
   # http://developer.ebay.com/DevZone/XML/docs/WebHelp/wwhelp/wwhimpl/js/html/wwhelp.htm?context=eBay_XML_API&topic=GettingATokenViaFetchToken
-  mattr_accessor :authorization_callback_url
-  self.authorization_callback_url = 'https://example.com/'
+  attr_writer :authorization_callback_url
+
+  def authorization_callback_url
+    self.authorization_callback_url = 'https://example.com/' if @authorization_callback_url.nil?
+
+    return @authorization_callback_url
+  end
 
   # This URL is used if the authorization process fails - usually because the user
   # didn't click 'I agree'. If you leave it nil, the
   # <code>authorization_callback_url</code> will be used (but the parameters will be
   # different).
-  mattr_accessor :authorization_failure_url
-  self.authorization_failure_url = nil
+  attr_accessor :authorization_failure_url
 
   # Callbacks which are invoked at various points throughout a request.
-  mattr_accessor :callbacks
-  self.callbacks = {
-    before_request: [],
-    after_request: [],
-    before_response: [],
-    after_response: [],
-    on_error: []
-  }
+  attr_writer :callbacks
+
+  def callbacks
+    if @callbacks.nil?
+      self.callbacks = {
+        before_request: [],
+        after_request: [],
+        before_response: [],
+        after_response: [],
+        on_error: []
+      }
+    end
+
+    return @callbacks
+  end
 
   # The eBay Site to use for calls. The full list of available sites can be
   # retrieved with <code>GeteBayDetails(:DetailName => "SiteDetails")</code>
-  mattr_accessor :site_id
-  self.site_id = 0
+  attr_writer :site_id
+
+  def site_id
+    self.site_id = 0 if @site_id.nil?
+    return @site_id
+  end
 
   # eBay Trading API version to use. For more details, see
   # http://developer.ebay.com/devzone/xml/docs/HowTo/eBayWS/eBaySchemaVersioning.html
-  mattr_accessor :compatability_level
-  self.compatability_level = 1325
+  attr_writer :compatability_level
 
-  mattr_accessor :logger
-  self.logger = Logger.new($stdout)
-  logger.level = Logger::INFO
+  def compatability_level
+    self.compatability_level = 1325 if @compatability_level.nil?
+    return @compatability_level
+  end
 
-  mattr_accessor :debug
-  self.debug = false
+  attr_writer :logger, :debug
+
+  def logger
+    if @logger.nil?
+      self.logger = Logger.new($stdout)
+      logger.level = Logger::INFO
+    end
+
+    return @logger
+  end
+
+  def debug
+    self.debug = 1325 if @debug.nil?
+    return @debug
+  end
 
   # Gets either ebay.com/ws or sandbox.ebay.com/ws, as appropriate, with
   # "service" prepended. E.g.
@@ -140,7 +166,7 @@ module Ebayr
     mod.extend(self)
   end
 
-  extend self
+  extend self # rubocop:disable Style/ModuleFunction
 end
 
 # Override defaults with values from a config file, if there is one.
