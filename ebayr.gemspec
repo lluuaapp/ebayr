@@ -31,7 +31,7 @@ Gem::Specification.new do |gem|
   gem.executables   = []
   gem.name          = 'ebayr'
   gem.require_paths = ['lib']
-  gem.version       = '0.4.0'
+  gem.version       = '0.4.1'
 
   gem.required_ruby_version = '>= 3.1'
   gem.add_dependency 'libxml-ruby', '>= 4', "< 6"
