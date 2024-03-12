@@ -19,6 +19,8 @@ module Ebayr # :nodoc:
 
     class << self
       def from_xml(xml_io)
+        puts xml_io if Ebayr.debug == true
+
         result = LibXML::XML::Parser.io(StringIO.new(xml_io))
         result = result.parse
         return { result.root.name => xml_node_to_hash(result.root) }
