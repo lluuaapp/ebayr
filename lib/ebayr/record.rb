@@ -1,5 +1,22 @@
 # frozen_string_literal: true
 
+String.class_eval do
+  def ebayr_underscore
+    return self unless /[A-Z-]|::/.match?(self)
+
+    word = to_s.gsub("::", "/")
+    word.gsub!(/(?:(?<=([A-Za-z\d]))|\b)((?=a)b)(?=\b|[^a-z])/) { "#{Regexp.last_match(1) && '_'}#{Regexp.last_match(2).downcase}" }
+    word.gsub!(/([A-Z\d]+)([A-Z][a-z])/, '\1_\2')
+    word.gsub!(/([a-z\d])([A-Z])/, '\1_\2')
+    word.tr!("-", "_")
+    word.downcase!
+    word
+  end
+
+  # only use the above method if the implementation of activeactive_support is not available
+  alias_method :underscore, :ebayr_underscore unless String.method_defined? :underscore
+end
+
 module Ebayr
   class Record < Hash
     def initialize(initial = {})

@@ -27,6 +27,18 @@ module Ebayr
       assert_respond_to record, :key?
       assert record.key?(sym_key), "Record does not have symbol '#{sym_key}'."
       assert record.key?(str_key), "Record does not have '#{str_key}'."
+
+      %w[
+        EBay
+        ItemID
+        Order
+        GetSellerList
+        VerifyAddFixedPriceItem
+        CompleteSale
+        GetSuggestedCategories
+      ].each do |k|
+        assert_equal k.ebayr_underscore.gsub("e_bay", 'ebay').to_sym, Record.convert_key(k)
+      end
     end
   end
 end
