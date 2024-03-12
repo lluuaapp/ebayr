@@ -1,10 +1,6 @@
 require 'test_helper'
 require 'ebayr'
-require 'fakeweb'
-
-class FakeWeb::StubSocket
-  def close; end
-end
+require 'webmock'
 
 describe Ebayr do
   before { Ebayr.sandbox = true }
@@ -38,11 +34,15 @@ describe Ebayr do
 
   # If this passes without an exception, then we're ok.
   describe "basic usage" do
-    before { FakeWeb.register_uri(:post, Ebayr.uri, body: xml) }
-    let(:xml) { "<GeteBayOfficialTimeResponse><Ack>Succes</Ack><Timestamp>blah</Timestamp></GeteBayOfficialTimeResponse>" }
+    before do
+      WebMock.stub_request(:post, Ebayr.uri).to_return(status: 200, body: xml, headers: {})
+      WebMock.enable!
+    end
+    date = Time.now.iso8601
+    let(:xml) { "<GeteBayOfficialTimeResponse><Ack>Succes</Ack><Timestamp>#{date}</Timestamp></GeteBayOfficialTimeResponse>" }
 
     it "runs without exceptions" do
-      _(Ebayr.call(:GeteBayOfficialTime).timestamp).must_equal 'blah'
+      _(Ebayr.call(:GeteBayOfficialTime).timestamp).must_equal date
     end
   end
 
@@ -86,5 +86,40 @@ describe Ebayr do
     _(Ebayr).must_be :sandbox?
     _(Ebayr.uri.to_s).must_equal "https://api.sandbox.ebay.com/ws/api.dll"
     _(Ebayr.logger).must_be_kind_of Logger
+    _(Ebayr.compatability_level).must_equal 1325
+    _(Ebayr.site_id).must_equal 0
+    _(Ebayr.callbacks[:before_request]).must_equal []
+    _(Ebayr.callbacks[:on_error]).must_equal []
+    _(Ebayr.authorization_callback_url).must_equal "https://example.com/"
+  end
+
+  it "extended class has decent defaults" do
+    cls = Class.new { extend Ebayr }
+    _(cls).must_be :sandbox?
+    _(cls.uri.to_s).must_equal "https://api.sandbox.ebay.com/ws/api.dll"
+    _(cls.logger).must_be_kind_of Logger
+    _(cls.compatability_level).must_equal 1325
+    _(cls.site_id).must_equal 0
+    _(cls.callbacks[:before_request]).must_equal []
+    _(cls.callbacks[:on_error]).must_equal []
+    _(cls.authorization_callback_url).must_equal "https://example.com/"
+  end
+
+  it "included class has decent defaults" do
+    cls = Class.new { include Ebayr }
+    _(cls).must_be :sandbox?
+    _(cls.uri.to_s).must_equal "https://api.sandbox.ebay.com/ws/api.dll"
+    _(cls.logger).must_be_kind_of Logger
+    _(cls.compatability_level).must_equal 1325
+    _(cls.site_id).must_equal 0
+    _(cls.callbacks[:before_request]).must_equal []
+    _(cls.callbacks[:on_error]).must_equal []
+    _(cls.authorization_callback_url).must_equal "https://example.com/"
+  end
+
+  it "correctly reports its site_id" do
+    _(Ebayr.site_id).must_equal 0
+    Ebayr.site_id = 77
+    _(Ebayr.site_id).must_equal 77
   end
 end

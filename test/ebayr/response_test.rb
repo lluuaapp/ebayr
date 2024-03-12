@@ -1,6 +1,9 @@
 require 'test_helper'
 require 'ostruct'
 require 'ebayr/response'
+
+# rubocop:disable Style/OpenStructUse
+
 describe Ebayr::Response do
   it "builds objects from XML" do
     xml = "<GetSomethingResponse><Foo>Bar</Foo></GetSomethingResponse>"
@@ -53,3 +56,5 @@ describe Ebayr::Response do
     _(response.orders_array.order[2].order_id).must_equal 3
   end
 end
+
+# rubocop:enable Style/OpenStructUse
