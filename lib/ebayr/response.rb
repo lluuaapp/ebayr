@@ -66,6 +66,8 @@ module Ebayr # :nodoc:
       end
 
       def prepare(data)
+        return data unless Ebayr.convert_integers
+
         data.instance_of?(String) && data.to_i.to_s == data ? data.to_i : data
       end
     end

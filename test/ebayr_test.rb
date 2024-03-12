@@ -30,6 +30,8 @@ describe Ebayr do
     assert_respond_to mod, :logger
     assert_respond_to mod, :'logger='
     assert_respond_to mod, :uri
+    assert_respond_to mod, :convert_integers
+    assert_respond_to mod, :'convert_integers='
   end
 
   # If this passes without an exception, then we're ok.
@@ -121,5 +123,6 @@ describe Ebayr do
     _(Ebayr.site_id).must_equal 0
     Ebayr.site_id = 77
     _(Ebayr.site_id).must_equal 77
+    Ebayr.site_id = 0
   end
 end

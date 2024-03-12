@@ -20,6 +20,9 @@ module Ebayr
   # details.
   attr_accessor :dev_id, :app_id, :cert_id, :ru_name, :auth_token, :oauth_token
 
+  # enable this if you want strings that only contains integers to be converted to ints (via to_i)
+  attr_accessor :convert_integers
+
   # Determines whether to use the eBay sandbox or the real site.
   attr_writer :sandbox
 

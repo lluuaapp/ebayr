@@ -51,9 +51,16 @@ describe Ebayr::Response do
       OpenStruct.new(body: xml)
     )
     assert_kind_of Hash, response.orders_array
-    _(response.orders_array.order[0].order_id).must_equal 1
-    _(response.orders_array.order[1].order_id).must_equal 2
-    _(response.orders_array.order[2].order_id).must_equal 3
+
+    if Ebayr.convert_integers
+      _(response.orders_array.order[0].order_id).must_equal 1
+      _(response.orders_array.order[1].order_id).must_equal 2
+      _(response.orders_array.order[2].order_id).must_equal 3
+    else
+      _(response.orders_array.order[0].order_id).must_equal '1'
+      _(response.orders_array.order[1].order_id).must_equal '2'
+      _(response.orders_array.order[2].order_id).must_equal '3'
+    end
   end
 end
 
