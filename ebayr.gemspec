@@ -25,8 +25,7 @@ Gem::Specification.new do |gem|
     "lib/ebayr/record.rb",
     "lib/ebayr/request.rb",
     "lib/ebayr/response.rb",
-    "lib/ebayr/test_helper.rb",
-    "lib/ebayr/user.rb"
+    "lib/ebayr/configuration.rb"
   ]
   gem.executables   = []
   gem.name          = 'ebayr'

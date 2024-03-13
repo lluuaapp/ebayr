@@ -3,21 +3,23 @@
 module Ebayr # :nodoc:
   # Encapsulates a request which is sent to the eBay Trading API.
   class Request
-    include Ebayr
+    # The Configuration object holding settings to be used in the API client.
+    attr_accessor :config
 
     attr_reader :command
 
     # Make a new call. The URI used will be that of Ebayr::uri, unless
     # overridden here (same for auth_token, site_id and compatability_level).
-    def initialize(command, options = {})
+    def initialize(command, options = {}, config = Configuration.default)
+      @config = config
       @command = self.class.camelize(command.to_s)
-      @uri = options.delete(:uri) || uri
+      @uri = options.delete(:uri) || @config.uri
       @uri = URI.parse(@uri) unless @uri.is_a? URI
-      @auth_token = (options.delete(:auth_token) || auth_token).to_s
-      @oauth_token = (options.delete(:oauth_token) || oauth_token).to_s
-      @site_id = (options.delete(:site_id) || site_id).to_s
-      @compatability_level = (options.delete(:compatability_level) || compatability_level).to_s
-      @http_timeout = (options.delete(:http_timeout) || 60).to_i
+      @auth_token = (options.delete(:auth_token) || @config.auth_token).to_s
+      @oauth_token = (options.delete(:oauth_token) || @config.oauth_token_with_refresh).to_s
+      @site_id = (options.delete(:site_id) || @config.site_id).to_s
+      @compatability_level = (options.delete(:compatability_level) || @config.compatability_level).to_s
+      @http_timeout = (options.delete(:http_timeout) || @config.http_timeout).to_i
       # Remaining options are converted and used as input to the call
       @input = options.delete(:input) || options
     end
@@ -35,9 +37,9 @@ module Ebayr # :nodoc:
     def headers
       {
         'X-EBAY-API-COMPATIBILITY-LEVEL' => @compatability_level.to_s,
-        'X-EBAY-API-DEV-NAME' => dev_id.to_s,
-        'X-EBAY-API-APP-NAME' => app_id.to_s,
-        'X-EBAY-API-CERT-NAME' => cert_id.to_s,
+        'X-EBAY-API-DEV-NAME' => @config.dev_id.to_s,
+        'X-EBAY-API-APP-NAME' => @config.app_id.to_s,
+        'X-EBAY-API-CERT-NAME' => @config.cert_id.to_s,
         'X-EBAY-API-CALL-NAME' => @command.to_s,
         'X-EBAY-API-SITEID' => @site_id.to_s,
         'X-EBAY-API-IAF-TOKEN' => @oauth_token,
@@ -49,10 +51,7 @@ module Ebayr # :nodoc:
     def body
       <<-XML
         <?xml version="1.0" encoding="utf-8"?>
-        <#{@command}Request xmlns="urn:ebay:apis:eBLBaseComponents">
-          #{requester_credentials_xml}
-          #{input_xml}
-        </#{@command}Request>
+        <#{@command}Request xmlns="urn:ebay:apis:eBLBaseComponents">#{requester_credentials_xml}#{input_xml}</#{@command}Request>
       XML
     end
 
@@ -73,13 +72,11 @@ module Ebayr # :nodoc:
     def send
       http = Net::HTTP.new(@uri.host, @uri.port)
       http.read_timeout = @http_timeout
-
-      # Output request XML if debug flag is set
-      puts body if debug == true
+      http.set_debug_output(@config.logger) if @config.debug
 
       if @uri.port == 443
         http.use_ssl = true
-        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+        http.verify_mode = OpenSSL::SSL::VERIFY_NONE unless @config.verify_tls_cert
       end
 
       post = Net::HTTP::Post.new(@uri.path, headers)

@@ -2,6 +2,16 @@ require 'test_helper'
 require 'ebayr/request'
 
 describe Ebayr::Request do
+  before do
+    Ebayr.configure do |c|
+      c.sandbox = true
+      c.verify_tls_cert = false
+      c.auth_token = nil
+      c.oauth_token = nil
+      c.oauth_token_getter = nil
+    end
+  end
+
   describe "serializing input" do
     it "converts times" do
       result = Ebayr::Request.serialize_input(Time.utc(2010, 'oct', 31, 3, 15))
@@ -11,7 +21,7 @@ describe Ebayr::Request do
 
   describe "uri" do
     it "is the Ebayr one" do
-      _(Ebayr::Request.new(:Blah).uri).must_equal(Ebayr.uri)
+      _(Ebayr::Request.new(:Blah).config.uri).must_equal(Ebayr::Configuration.default.uri)
     end
   end
 
