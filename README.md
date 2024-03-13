@@ -48,28 +48,30 @@ stuff - look at the [eBay developer docs][1] for details).
 ```ruby
 require 'ebayr'
 
-Ebayr.dev_id = "my-dev-id"
+Ebayr.configure do |config|
+  config.dev_id = "my-dev-id"
 
-# This is only needed if you want to retrieve user tokens
-Ebayr.authorization_callback_url = "https://my-site/callback-url"
+  # This is only needed if you want to retrieve user tokens
+  config.authorization_callback_url = "https://my-site/callback-url"
 
-Ebayr.auth_token = "myverylongebayauthtoken"
+  config.auth_token = "myverylongebayauthtoken"
 
-Ebayr.app_id = "my-ebay-app-id"
+  config.app_id = "my-ebay-app-id"
 
-Ebayr.cert_id = "my-ebay-cert-id"
+  config.cert_id = "my-ebay-cert-id"
 
-Ebayr.ru_name = "my-ebay-ru-name"
+  config.ru_name = "my-ebay-ru-name"
 
-# Set this to true for testing in the eBay Sandbox (but remember to use the
-# appropriate keys!). It's true by default.
-Ebayr.sandbox = false
+  # Set this to true for testing in the eBay Sandbox (but remember to use the
+  # appropriate keys!). It's true by default.
+  config.sandbox = false
+end
 ```
 
 Now you're ready to make calls
 ```ruby
 Ebayr.call(:GeteBayOfficialTime)
-session = Ebayr.call(:GetSessionID, :RuName => Ebayr.ru_name)[:SessionID]
+session = Ebayr.call(:GetSessionID, :RuName => Ebayr::Configuration.ru_name)[:SessionID]
 ```
 
 To use an authorized user's key, pass in an `auth_token` parameter
@@ -86,17 +88,6 @@ Ebayr::Request.new(:Blah, :input => args)
 
 ### Configuration
 
-Ebayr will look for the following Ruby files, and load them *once* in order (if
-they exist) when the module is evaluated:
-
-1. /etc/ebayr.conf
-2. /usr/local/etc/ebayr.conf
-3. ~/.ebayr.conf
-4. ./.ebayr.conf
-
-You can put configuration code in there (such as the variable setting shown
-above). The files should be plain old Ruby.
-
 In a Ruby on Rails project, just create a file called
 config/initializers/ebayr.rb (or something), and put the configuration there. Of
 course, you should probably not check in these files, if you're using a public
@@ -109,7 +100,7 @@ repository.
 When running test, you generally won't want to use up your API call-limit too
 quickly, so it makes sense to stub out calls to the eBay API.
 
-Ebayr test use [Fakeweb][2] to mimic the responses from eBay.
+Ebayr test use [WebMock][2] to mimic the responses from eBay.
 
 ```ruby
 require 'ebayr'
@@ -118,7 +109,13 @@ require 'fakeweb'
 
 class MyTest < Test::Unit::TestCase
   def setup
-    Ebayr.sandbox = true
+    Ebayr.configure do |c|
+      c.sandbox = true
+      c.verify_tls_cert = false
+      c.auth_token = nil
+      c.oauth_token = nil
+      c.oauth_token_getter = nil
+    end
   end
 
   # A very contrived example...
@@ -130,7 +127,7 @@ class MyTest < Test::Unit::TestCase
       </GeteBayOfficialTimeResponse>
     XML
 
-    FakeWeb.register_uri(:post, Ebayr.uri, :body => xml)
+    WebMock.stub_request(:post, Ebayr.configuration.uri).to_return(status: 200, body: xml, headers: {})
 
     time = SomeWrapperThatUsesEbayr.get_ebay_time
     assert_equal 'blah', time
@@ -168,4 +165,4 @@ Thanks to the great contributing maintainers on GitHub, including:
 - jogaco
 
 [1]: http://developer.ebay.com
-[2]: http://fakeweb.rubyforge.org
+[2]: https://github.com/bblimke/webmock
